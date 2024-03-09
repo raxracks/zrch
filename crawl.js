@@ -23,13 +23,15 @@ async function crawl(url, ignoreExisting = false) {
                 console.log(`[${res.status} ${res.statusText}] ${url}`); 
                 
                 if(res.status == 200) {
-                        const $         = cheerio.load(await res.text());
+			const html 	= await res.text();
+			const $         = cheerio.load(html);
                         const title     = $("title").text();
-        
+			const text 	= $.text().replace(/\s+/g, " ").trim();
+
                         console.log(`[TITLE] ${title} (${url})`);
                         
-                        db.run(`INSERT INTO pages(url, title) 
-                                VALUES(?, ?)`, url, title, (err) => {
+                        db.run(`INSERT INTO pages(url, title, text) 
+                                VALUES(?, ?, ?)`, url, title, text, (err) => {
                                 if(err) {
                                         console.log(`[INSERT FAIL: ${err}] ${url}|${title}`);
                                 } else {
